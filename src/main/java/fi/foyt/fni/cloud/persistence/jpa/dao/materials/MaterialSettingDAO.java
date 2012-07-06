@@ -1,5 +1,7 @@
 package fi.foyt.fni.cloud.persistence.jpa.dao.materials;
 
+import java.util.List;
+
 import javax.enterprise.context.RequestScoped;
 import javax.persistence.EntityManager;
 import javax.persistence.criteria.CriteriaBuilder;
@@ -45,6 +47,20 @@ public class MaterialSettingDAO extends GenericDAO<MaterialSetting> {
     );
     
     return getSingleResult(entityManager.createQuery(criteria));
+  }
+
+	public List<MaterialSetting> listByMaterial(Material material) {
+		EntityManager entityManager = getEntityManager();
+
+    CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
+    CriteriaQuery<MaterialSetting> criteria = criteriaBuilder.createQuery(MaterialSetting.class);
+    Root<MaterialSetting> root = criteria.from(MaterialSetting.class);
+    criteria.select(root);
+    criteria.where(
+      criteriaBuilder.equal(root.get(MaterialSetting_.material), material)
+    );
+    
+    return entityManager.createQuery(criteria).getResultList();
   }
 
 	public MaterialSetting updateValue(MaterialSetting materialSetting, String value) {
