@@ -9,10 +9,10 @@ import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
 
+import fi.foyt.fni.cloud.persistence.jpa.domainmodel.auth.UserIdentifier;
 import fi.foyt.fni.cloud.persistence.jpa.domainmodel.users.UserToken_;
 import fi.foyt.fni.cloud.persistence.jpa.dao.DAO;
 import fi.foyt.fni.cloud.persistence.jpa.dao.GenericDAO;
-import fi.foyt.fni.cloud.persistence.jpa.domainmodel.users.UserIdentifier;
 import fi.foyt.fni.cloud.persistence.jpa.domainmodel.users.UserToken;
 
 @RequestScoped
