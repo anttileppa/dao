@@ -42,4 +42,25 @@ public class InternalAuthDAO extends GenericDAO<InternalAuth> {
     
     return getSingleResult(entityManager.createQuery(criteria));
   }
+
+  public InternalAuth findByUser(User user) {
+    EntityManager entityManager = getEntityManager();
+
+    CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
+    CriteriaQuery<InternalAuth> criteria = criteriaBuilder.createQuery(InternalAuth.class);
+    Root<InternalAuth> root = criteria.from(InternalAuth.class);
+    criteria.select(root);
+    criteria.where(
+      criteriaBuilder.equal(root.get(InternalAuth_.user), user)
+    );
+    
+    return getSingleResult(entityManager.createQuery(criteria));
+  }
+
+	public InternalAuth updatePassword(InternalAuth internalAuth, String password) {
+		EntityManager entityManager = getEntityManager();
+		internalAuth.setPassword(password);
+		entityManager.persist(internalAuth);
+		return internalAuth;
+  }
 }
