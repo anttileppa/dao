@@ -51,4 +51,18 @@ public class UserEmailDAO extends GenericDAO<UserEmail> {
 
     return entityManager.createQuery(criteria).getResultList();
   }
+
+	public List<User> listUsersByEmails(List<String> emails) {
+		EntityManager entityManager = getEntityManager();
+
+    CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
+    CriteriaQuery<User> criteria = criteriaBuilder.createQuery(User.class);
+    Root<UserEmail> root = criteria.from(UserEmail.class);
+    
+    criteria.select(root.get(UserEmail_.user));
+    criteria.where(root.get(UserEmail_.email).in(emails));
+    criteria.groupBy(root.get(UserEmail_.user));
+
+    return entityManager.createQuery(criteria).getResultList();
+  }
 }
