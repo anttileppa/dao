@@ -21,12 +21,11 @@ import fi.foyt.fni.cloud.persistence.jpa.domainmodel.users.User_;
 @DAO
 public class UserDAO extends GenericDAO<User> {
 
-	public User create(String firstName, String lastName, String nickname, Locale locale, Boolean confirmed, Date registrationDate, UserRole role) {
+	public User create(String firstName, String lastName, String nickname, Locale locale, Date registrationDate, UserRole role) {
     EntityManager entityManager = getEntityManager();
 
     User user = new User();
     user.setArchived(Boolean.FALSE);
-    user.setConfirmed(confirmed);
     user.setFirstName(firstName);
     user.setLastName(lastName);
     user.setLocale(locale.toString());
@@ -95,17 +94,6 @@ public class UserDAO extends GenericDAO<User> {
   public User updateRegistrationDate(User user, Date registrationDate) {
     EntityManager entityManager = getEntityManager();
     user.setRegistrationDate(registrationDate);
-
-    entityManager.persist(user);
-    
-    return user;
-
-  }
-
-  public User updateConfirmed(User user, Boolean confirmed) {
-    EntityManager entityManager = getEntityManager();
-
-    user.setConfirmed(confirmed);
 
     entityManager.persist(user);
     

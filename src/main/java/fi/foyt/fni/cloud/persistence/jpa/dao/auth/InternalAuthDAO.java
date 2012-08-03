@@ -16,14 +16,16 @@ import fi.foyt.fni.cloud.persistence.jpa.domainmodel.users.User;
 @DAO
 public class InternalAuthDAO extends GenericDAO<InternalAuth> {
 
-	public InternalAuth create(User user, String password) {
+	public InternalAuth create(User user, String password, Boolean verified) {
     EntityManager entityManager = getEntityManager();
 
-    InternalAuth fniUserAuth = new InternalAuth();
-    fniUserAuth.setPassword(password);
-    fniUserAuth.setUser(user);
-    entityManager.persist(fniUserAuth);
-    return fniUserAuth;
+    InternalAuth internalAuth = new InternalAuth();
+    internalAuth.setPassword(password);
+    internalAuth.setUser(user);
+    internalAuth.setVerified(verified);
+    
+    entityManager.persist(internalAuth);
+    return internalAuth;
   }
 
   public InternalAuth findByUserAndPassword(User user, String password) {
@@ -62,5 +64,16 @@ public class InternalAuthDAO extends GenericDAO<InternalAuth> {
 		internalAuth.setPassword(password);
 		entityManager.persist(internalAuth);
 		return internalAuth;
+  }
+
+  public InternalAuth updateVerified(InternalAuth internalAuth, Boolean verified) {
+    EntityManager entityManager = getEntityManager();
+
+    internalAuth.setVerified(verified);
+
+    entityManager.persist(internalAuth);
+    
+    return internalAuth;
+
   }
 }

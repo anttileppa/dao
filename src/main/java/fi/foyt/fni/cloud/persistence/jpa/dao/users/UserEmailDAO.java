@@ -18,12 +18,14 @@ import fi.foyt.fni.cloud.persistence.jpa.domainmodel.users.UserEmail;
 @DAO
 public class UserEmailDAO extends GenericDAO<UserEmail> {
 
-	public UserEmail create(User user, String email) {
+	public UserEmail create(User user, String email, Boolean primary) {
     EntityManager entityManager = getEntityManager();
 
     UserEmail userEmail = new UserEmail();
     userEmail.setEmail(email);
     userEmail.setUser(user);
+    userEmail.setPrimary(primary);
+    
     entityManager.persist(userEmail);
     return userEmail;
   }
@@ -39,6 +41,24 @@ public class UserEmailDAO extends GenericDAO<UserEmail> {
 
     return getSingleResult(entityManager.createQuery(criteria));
   }
+
+  public UserEmail findByUserAndPrimary(User user, Boolean primary) {
+    EntityManager entityManager = getEntityManager();
+
+    CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
+    CriteriaQuery<UserEmail> criteria = criteriaBuilder.createQuery(UserEmail.class);
+    Root<UserEmail> root = criteria.from(UserEmail.class);
+    criteria.select(root);
+    criteria.where(
+      criteriaBuilder.and(
+      		criteriaBuilder.equal(root.get(UserEmail_.user), user),
+      		criteriaBuilder.equal(root.get(UserEmail_.primary), primary)
+      )
+    );
+
+    return getSingleResult(entityManager.createQuery(criteria));
+  }
+
 
   public List<UserEmail> listByUser(User user) {
     EntityManager entityManager = getEntityManager();
@@ -64,5 +84,17 @@ public class UserEmailDAO extends GenericDAO<UserEmail> {
     criteria.groupBy(root.get(UserEmail_.user));
 
     return entityManager.createQuery(criteria).getResultList();
+  }
+
+	public Long countByUser(User user) {
+		EntityManager entityManager = getEntityManager();
+
+    CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
+    CriteriaQuery<Long> criteria = criteriaBuilder.createQuery(Long.class);
+    Root<UserEmail> root = criteria.from(UserEmail.class);
+    criteria.select(criteriaBuilder.count(root));
+    criteria.where(criteriaBuilder.equal(root.get(UserEmail_.user), user));
+
+    return entityManager.createQuery(criteria).getSingleResult();
   }
 }
