@@ -1,16 +1,22 @@
 package fi.foyt.fni.cloud.persistence.jpa.dao.users;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.enterprise.context.RequestScoped;
 import javax.persistence.EntityManager;
+import javax.persistence.Tuple;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Expression;
 import javax.persistence.criteria.Join;
+import javax.persistence.criteria.Path;
 import javax.persistence.criteria.Root;
+import javax.persistence.criteria.Subquery;
 
 import fi.foyt.fni.cloud.persistence.jpa.dao.DAO;
 import fi.foyt.fni.cloud.persistence.jpa.dao.GenericDAO;
+import fi.foyt.fni.cloud.persistence.jpa.domainmodel.users.CommonFriend;
 import fi.foyt.fni.cloud.persistence.jpa.domainmodel.users.User;
 import fi.foyt.fni.cloud.persistence.jpa.domainmodel.users.UserFriend;
 import fi.foyt.fni.cloud.persistence.jpa.domainmodel.users.UserFriend_;
@@ -148,7 +154,51 @@ public class UserFriendDAO extends GenericDAO<UserFriend> {
     
     return entityManager.createQuery(userCriteria).getResultList();
   }
+  
+  public List<CommonFriend> listCommonFriendsByUser(User user) {
+  	EntityManager entityManager = getEntityManager();
 
+    CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
+    CriteriaQuery<Tuple> criteria = criteriaBuilder.createTupleQuery();
+    Root<UserFriend> root = criteria.from(UserFriend.class);
+    
+    Path<User> friendPath = root.get(UserFriend_.friend);
+    Expression<Long> countExpression = criteriaBuilder.count(friendPath);
+    
+    Subquery<User> friendsSubquery = criteria.subquery(User.class);
+    Root<UserFriend> friendsRoot = friendsSubquery.from(UserFriend.class);
+    friendsSubquery.where(
+    	criteriaBuilder.and(
+        criteriaBuilder.equal(friendsRoot.get(UserFriend_.user), user),
+        criteriaBuilder.equal(root.get(UserFriend_.confirmed), Boolean.TRUE)
+      )
+    );
+    friendsSubquery.select(friendsRoot.get(UserFriend_.friend));    
+    
+    criteria.multiselect(friendPath, countExpression);
+    
+    criteria.where(
+      criteriaBuilder.and(
+          criteriaBuilder.notEqual(root.get(UserFriend_.friend), user),
+          root.get(UserFriend_.user).in(friendsSubquery),
+          criteriaBuilder.not(
+            root.get(UserFriend_.friend).in(friendsSubquery)
+          ),
+          criteriaBuilder.equal(root.get(UserFriend_.confirmed), Boolean.TRUE)
+      )
+    );
+    
+    criteria.groupBy(friendPath);
+    List<CommonFriend> commonFriends = new ArrayList<CommonFriend>();
+
+    List<Tuple> tuples = entityManager.createQuery( criteria ).getResultList();
+    for ( Tuple tuple : tuples ) {
+    	commonFriends.add(new CommonFriend(tuple.get(countExpression), tuple.get(friendPath)));
+    } 
+    
+    return commonFriends;
+  }
+  
   public UserFriend updateConfirmed(UserFriend userFriend, Boolean confirmed) {
     EntityManager entityManager = getEntityManager();
     userFriend.setConfirmed(confirmed);
