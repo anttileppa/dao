@@ -6,6 +6,7 @@ import java.util.List;
 import javax.enterprise.context.RequestScoped;
 import javax.persistence.EntityManager;
 import javax.persistence.Tuple;
+import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Expression;
@@ -155,7 +156,11 @@ public class UserFriendDAO extends GenericDAO<UserFriend> {
     return entityManager.createQuery(userCriteria).getResultList();
   }
   
-  public List<CommonFriend> listCommonFriendsByUser(User user) {
+  public List<CommonFriend> listCommonFriendsByUserOrderByCommonFriendCount(User user) {
+  	return listCommonFriendsByUserOrderByCommonFriendCount(user, null, null);
+  }
+  
+  public List<CommonFriend> listCommonFriendsByUserOrderByCommonFriendCount(User user, Integer firstResult, Integer maxResults) {
   	EntityManager entityManager = getEntityManager();
 
     CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
@@ -189,9 +194,19 @@ public class UserFriendDAO extends GenericDAO<UserFriend> {
     );
     
     criteria.groupBy(friendPath);
+    criteria.orderBy(criteriaBuilder.desc(countExpression));
+    
     List<CommonFriend> commonFriends = new ArrayList<CommonFriend>();
 
-    List<Tuple> tuples = entityManager.createQuery( criteria ).getResultList();
+    TypedQuery<Tuple> query = entityManager.createQuery( criteria );
+    
+    if (firstResult != null)
+      query.setFirstResult(firstResult);
+    
+    if (maxResults != null)
+      query.setMaxResults(maxResults);
+    
+    List<Tuple> tuples = query.getResultList();
     for ( Tuple tuple : tuples ) {
     	commonFriends.add(new CommonFriend(tuple.get(countExpression), tuple.get(friendPath)));
     } 
