@@ -145,15 +145,18 @@ public class UserFriendDAO extends GenericDAO<UserFriend> {
     List<Long> friendIds = entityManager.createQuery(userFriendsCriteria).getResultList();
     friendIds.addAll(entityManager.createQuery(friendUsersCriteria).getResultList());
     
-    CriteriaBuilder userCriteriaBuilder = entityManager.getCriteriaBuilder();
-    CriteriaQuery<User> userCriteria = userCriteriaBuilder.createQuery(User.class);
-    Root<User> userRoot = userCriteria.from(User.class);
-    userCriteria.select(userRoot);
-    userCriteria.where(
-    	userRoot.get(User_.id).in(friendIds)
-    );
-    
-    return entityManager.createQuery(userCriteria).getResultList();
+    if (friendIds.size() > 0) {
+      CriteriaBuilder userCriteriaBuilder = entityManager.getCriteriaBuilder();
+      CriteriaQuery<User> userCriteria = userCriteriaBuilder.createQuery(User.class);
+      Root<User> userRoot = userCriteria.from(User.class);
+      userCriteria.select(userRoot);
+      userCriteria.where(
+      	userRoot.get(User_.id).in(friendIds)
+      );
+      return entityManager.createQuery(userCriteria).getResultList();
+    } else {
+    	return new ArrayList<User>();
+    }
   }
   
   public List<CommonFriend> listCommonFriendsByUserOrderByCommonFriendCount(User user) {
