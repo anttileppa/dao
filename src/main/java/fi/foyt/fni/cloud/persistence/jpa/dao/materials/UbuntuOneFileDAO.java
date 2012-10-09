@@ -1,0 +1,87 @@
+package fi.foyt.fni.cloud.persistence.jpa.dao.materials;
+
+import java.util.Date;
+
+import javax.enterprise.context.RequestScoped;
+import javax.persistence.EntityManager;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Root;
+
+import fi.foyt.fni.cloud.persistence.jpa.dao.DAO;
+import fi.foyt.fni.cloud.persistence.jpa.dao.GenericDAO;
+import fi.foyt.fni.cloud.persistence.jpa.domainmodel.common.Language;
+import fi.foyt.fni.cloud.persistence.jpa.domainmodel.materials.UbuntuOneFile;
+import fi.foyt.fni.cloud.persistence.jpa.domainmodel.materials.Folder;
+import fi.foyt.fni.cloud.persistence.jpa.domainmodel.materials.UbuntuOneFile_;
+import fi.foyt.fni.cloud.persistence.jpa.domainmodel.materials.MaterialPublicity;
+import fi.foyt.fni.cloud.persistence.jpa.domainmodel.users.User;
+
+@RequestScoped
+@DAO
+public class UbuntuOneFileDAO extends GenericDAO<UbuntuOneFile> {
+
+  public UbuntuOneFile create(User creator, Language language, Folder parentFolder, String urlName, String title, MaterialPublicity publicity, String ubuntuOneKey,
+      Long generation, String contentPath, String mimeType) {
+    EntityManager entityManager = getEntityManager();
+
+    Date now = new Date();
+
+    UbuntuOneFile ubuntuOneFile = new UbuntuOneFile();
+    ubuntuOneFile.setCreated(now);
+    ubuntuOneFile.setCreator(creator);
+    ubuntuOneFile.setModified(now);
+    ubuntuOneFile.setModifier(creator);
+    ubuntuOneFile.setTitle(title);
+    ubuntuOneFile.setUrlName(urlName);
+    ubuntuOneFile.setPublicity(publicity);
+    ubuntuOneFile.setLanguage(language);
+    ubuntuOneFile.setParentFolder(parentFolder);
+    ubuntuOneFile.setUbuntuOneKey(ubuntuOneKey);
+    ubuntuOneFile.setGeneration(generation);
+    ubuntuOneFile.setContentPath(contentPath);
+    ubuntuOneFile.setMimeType(mimeType);
+
+    entityManager.persist(ubuntuOneFile);
+
+    return ubuntuOneFile;
+  }
+
+  public UbuntuOneFile findByUbuntuOneKey(String ubuntuOneKey) {
+    EntityManager entityManager = getEntityManager();
+
+    CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
+    CriteriaQuery<UbuntuOneFile> criteria = criteriaBuilder.createQuery(UbuntuOneFile.class);
+    Root<UbuntuOneFile> root = criteria.from(UbuntuOneFile.class);
+    criteria.select(root);
+    criteria.where(criteriaBuilder.equal(root.get(UbuntuOneFile_.ubuntuOneKey), ubuntuOneKey));
+
+    return getSingleResult(entityManager.createQuery(criteria));
+  }
+
+  public UbuntuOneFile findByContentPath(String contentPath) {
+    EntityManager entityManager = getEntityManager();
+
+    CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
+    CriteriaQuery<UbuntuOneFile> criteria = criteriaBuilder.createQuery(UbuntuOneFile.class);
+    Root<UbuntuOneFile> root = criteria.from(UbuntuOneFile.class);
+    criteria.select(root);
+    criteria.where(criteriaBuilder.equal(root.get(UbuntuOneFile_.contentPath), contentPath));
+
+    return getSingleResult(entityManager.createQuery(criteria));
+  }
+
+  public UbuntuOneFile updateGeneration(UbuntuOneFile ubuntuOneFile, Long generation, User modifier) {
+    ubuntuOneFile.setGeneration(generation);
+    ubuntuOneFile.setModifier(modifier);
+    getEntityManager().persist(ubuntuOneFile);
+    return ubuntuOneFile;
+  }
+
+  public UbuntuOneFile updateContentPath(UbuntuOneFile ubuntuOneFile, String contentPath, User modifier) {
+    ubuntuOneFile.setContentPath(contentPath);
+    ubuntuOneFile.setModifier(modifier);
+    getEntityManager().persist(ubuntuOneFile);
+    return ubuntuOneFile;
+  }
+}

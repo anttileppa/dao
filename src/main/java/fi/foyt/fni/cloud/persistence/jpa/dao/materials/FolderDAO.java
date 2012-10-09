@@ -72,17 +72,6 @@ public class FolderDAO extends GenericDAO<Folder> {
     return entityManager.createQuery(criteria).getResultList();
   }
   
-  public Folder updateTitle(Folder folder, User modifier, String title) {
-    EntityManager entityManager = getEntityManager();
-
-    folder.setTitle(title);
-    folder.setModified(new Date());
-    folder.setModifier(modifier);
-    
-    entityManager.persist(folder);
-    return folder;
-  }
-  
   public Folder updateCreated(Folder folder, Date created) {
     EntityManager entityManager = getEntityManager();
 
@@ -107,17 +96,5 @@ public class FolderDAO extends GenericDAO<Folder> {
     entityManager.persist(folder);
     return folder;
   }
-  
-  public Folder updateUrlName(Folder folder, User modifier, String urlName) {
-    EntityManager entityManager = getEntityManager();
-
-    folder.setUrlName(urlName);
-    folder.setModified(new Date());
-    folder.setModifier(modifier);
-    
-    entityManager.persist(folder);
-    return folder;
-  }
-  
   
 }

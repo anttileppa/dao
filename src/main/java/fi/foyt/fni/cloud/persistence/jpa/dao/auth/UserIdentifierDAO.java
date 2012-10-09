@@ -49,7 +49,7 @@ public class UserIdentifierDAO extends GenericDAO<UserIdentifier> {
     return getSingleResult(entityManager.createQuery(criteria));
   }
 
-  public List<UserIdentifier> listByUserId(User user) {
+  public List<UserIdentifier> listByUser(User user) {
     EntityManager entityManager = getEntityManager();
 
     CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
@@ -57,6 +57,23 @@ public class UserIdentifierDAO extends GenericDAO<UserIdentifier> {
     Root<UserIdentifier> root = criteria.from(UserIdentifier.class);
     criteria.select(root);
     criteria.where(criteriaBuilder.equal(root.get(UserIdentifier_.user), user));
+
+    return entityManager.createQuery(criteria).getResultList();
+  }
+
+  public List<UserIdentifier> listByAuthSourceAndUser(AuthSource authSource, User user) {
+    EntityManager entityManager = getEntityManager();
+
+    CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
+    CriteriaQuery<UserIdentifier> criteria = criteriaBuilder.createQuery(UserIdentifier.class);
+    Root<UserIdentifier> root = criteria.from(UserIdentifier.class);
+    criteria.select(root);
+    criteria.where(
+      criteriaBuilder.and(
+        criteriaBuilder.equal(root.get(UserIdentifier_.user), user),
+        criteriaBuilder.equal(root.get(UserIdentifier_.authSource), authSource)
+      )
+    );
 
     return entityManager.createQuery(criteria).getResultList();
   }

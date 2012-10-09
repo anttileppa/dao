@@ -242,4 +242,26 @@ public class MaterialDAO extends GenericDAO<Material> {
   	return material;
   }
 
+  public Material updateUrlName(Material material, String urlName, User modifier) {
+    EntityManager entityManager = getEntityManager();
+
+    material.setUrlName(urlName);
+    material.setModified(new Date());
+    material.setModifier(modifier);
+    
+    entityManager.persist(material);
+    return material;
+  }
+
+  
+  public Material updateTitle(Material material, String title, User modifier) {
+    EntityManager entityManager = getEntityManager();
+
+    material.setTitle(title);
+    material.setModified(new Date());
+    material.setModifier(modifier);
+    
+    entityManager.persist(material);
+    return material;
+  }
 }

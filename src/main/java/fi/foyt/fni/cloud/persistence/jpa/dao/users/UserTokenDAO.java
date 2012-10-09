@@ -19,11 +19,12 @@ import fi.foyt.fni.cloud.persistence.jpa.domainmodel.users.UserToken;
 @DAO
 public class UserTokenDAO extends GenericDAO<UserToken> {
 
-	public UserToken create(UserIdentifier userIdentifier, String token, Date expires, String grantedScopes) {
+	public UserToken create(UserIdentifier userIdentifier, String token, String secret, Date expires, String grantedScopes) {
     EntityManager entityManager = getEntityManager();
 
     UserToken userToken = new UserToken();
     userToken.setToken(token);
+    userToken.setSecret(secret);
     userToken.setExpires(expires);
     userToken.setGrantedScopes(grantedScopes);
     userToken.setUserIdentifier(userIdentifier);
@@ -40,6 +41,18 @@ public class UserTokenDAO extends GenericDAO<UserToken> {
     Root<UserToken> root = criteria.from(UserToken.class);
     criteria.select(root);
     criteria.where(criteriaBuilder.equal(root.get(UserToken_.token), token));
+
+    return getSingleResult(entityManager.createQuery(criteria));
+  }
+
+  public UserToken findByUserIdentifier(UserIdentifier userIdentifier) {
+    EntityManager entityManager = getEntityManager();
+
+    CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
+    CriteriaQuery<UserToken> criteria = criteriaBuilder.createQuery(UserToken.class);
+    Root<UserToken> root = criteria.from(UserToken.class);
+    criteria.select(root);
+    criteria.where(criteriaBuilder.equal(root.get(UserToken_.userIdentifier), userIdentifier));
 
     return getSingleResult(entityManager.createQuery(criteria));
   }
