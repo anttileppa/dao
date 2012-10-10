@@ -58,14 +58,19 @@ public class UbuntuOneFolderDAO extends GenericDAO<UbuntuOneFolder> {
     return getSingleResult(entityManager.createQuery(criteria));
   }
 
-  public UbuntuOneFolder findByContentPath(String contentPath) {
+  public UbuntuOneFolder findByCreatorAndContentPath(User creator, String contentPath) {
     EntityManager entityManager = getEntityManager();
 
     CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
     CriteriaQuery<UbuntuOneFolder> criteria = criteriaBuilder.createQuery(UbuntuOneFolder.class);
     Root<UbuntuOneFolder> root = criteria.from(UbuntuOneFolder.class);
     criteria.select(root);
-    criteria.where(criteriaBuilder.equal(root.get(UbuntuOneFolder_.contentPath), contentPath));
+    criteria.where(
+      criteriaBuilder.and(
+        criteriaBuilder.equal(root.get(UbuntuOneFolder_.contentPath), contentPath),
+        criteriaBuilder.equal(root.get(UbuntuOneFolder_.creator), creator)
+      )
+    );
 
     return getSingleResult(entityManager.createQuery(criteria));
   }
