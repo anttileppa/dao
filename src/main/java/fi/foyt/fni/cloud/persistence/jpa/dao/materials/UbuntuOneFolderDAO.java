@@ -1,6 +1,7 @@
 package fi.foyt.fni.cloud.persistence.jpa.dao.materials;
 
 import java.util.Date;
+import java.util.List;
 
 import javax.enterprise.context.RequestScoped;
 import javax.persistence.EntityManager;
@@ -11,10 +12,10 @@ import javax.persistence.criteria.Root;
 import fi.foyt.fni.cloud.persistence.jpa.dao.DAO;
 import fi.foyt.fni.cloud.persistence.jpa.dao.GenericDAO;
 import fi.foyt.fni.cloud.persistence.jpa.domainmodel.common.Language;
-import fi.foyt.fni.cloud.persistence.jpa.domainmodel.materials.UbuntuOneFolder;
-import fi.foyt.fni.cloud.persistence.jpa.domainmodel.materials.UbuntuOneFolder_;
 import fi.foyt.fni.cloud.persistence.jpa.domainmodel.materials.Folder;
 import fi.foyt.fni.cloud.persistence.jpa.domainmodel.materials.MaterialPublicity;
+import fi.foyt.fni.cloud.persistence.jpa.domainmodel.materials.UbuntuOneFolder;
+import fi.foyt.fni.cloud.persistence.jpa.domainmodel.materials.UbuntuOneFolder_;
 import fi.foyt.fni.cloud.persistence.jpa.domainmodel.users.User;
 
 @RequestScoped
@@ -73,6 +74,23 @@ public class UbuntuOneFolderDAO extends GenericDAO<UbuntuOneFolder> {
     );
 
     return getSingleResult(entityManager.createQuery(criteria));
+  }
+
+  public List<String> listUbuntuOneKeysByParentFolderAndCreator(Folder parentFolder, User user) {
+    EntityManager entityManager = getEntityManager();
+
+    CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
+    CriteriaQuery<String> criteria = criteriaBuilder.createQuery(String.class);
+    Root<UbuntuOneFolder> root = criteria.from(UbuntuOneFolder.class);
+    criteria.select(root.get(UbuntuOneFolder_.ubuntuOneKey));
+    criteria.where(
+      criteriaBuilder.and(
+        criteriaBuilder.equal(root.get(UbuntuOneFolder_.parentFolder), parentFolder),
+        criteriaBuilder.equal(root.get(UbuntuOneFolder_.creator), user)
+      )
+    );
+
+    return entityManager.createQuery(criteria).getResultList();
   }
 
   public UbuntuOneFolder updateGeneration(UbuntuOneFolder ubuntuOneFolder, Long generation, User modifier) {

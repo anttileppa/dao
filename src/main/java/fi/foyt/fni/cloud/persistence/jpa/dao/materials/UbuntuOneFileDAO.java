@@ -1,6 +1,7 @@
 package fi.foyt.fni.cloud.persistence.jpa.dao.materials;
 
 import java.util.Date;
+import java.util.List;
 
 import javax.enterprise.context.RequestScoped;
 import javax.persistence.EntityManager;
@@ -71,6 +72,23 @@ public class UbuntuOneFileDAO extends GenericDAO<UbuntuOneFile> {
     return getSingleResult(entityManager.createQuery(criteria));
   }
 
+  public List<String> listUbuntuOneKeysByParentFolderAndCreator(Folder parentFolder, User user) {
+    EntityManager entityManager = getEntityManager();
+
+    CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
+    CriteriaQuery<String> criteria = criteriaBuilder.createQuery(String.class);
+    Root<UbuntuOneFile> root = criteria.from(UbuntuOneFile.class);
+    criteria.select(root.get(UbuntuOneFile_.ubuntuOneKey));
+    criteria.where(
+      criteriaBuilder.and(
+        criteriaBuilder.equal(root.get(UbuntuOneFile_.parentFolder), parentFolder),
+        criteriaBuilder.equal(root.get(UbuntuOneFile_.creator), user)
+      )
+    );
+
+    return entityManager.createQuery(criteria).getResultList();
+  }
+  
   public UbuntuOneFile updateGeneration(UbuntuOneFile ubuntuOneFile, Long generation, User modifier) {
     ubuntuOneFile.setGeneration(generation);
     ubuntuOneFile.setModifier(modifier);
