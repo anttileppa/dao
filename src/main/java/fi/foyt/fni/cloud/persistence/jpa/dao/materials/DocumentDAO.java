@@ -7,15 +7,16 @@ import java.util.List;
 import javax.enterprise.context.RequestScoped;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceException;
+import javax.persistence.Query;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
 
-import fi.foyt.fni.cloud.persistence.jpa.domainmodel.materials.Document_;
 import fi.foyt.fni.cloud.persistence.jpa.dao.DAO;
 import fi.foyt.fni.cloud.persistence.jpa.dao.GenericDAO;
 import fi.foyt.fni.cloud.persistence.jpa.domainmodel.common.Language;
 import fi.foyt.fni.cloud.persistence.jpa.domainmodel.materials.Document;
+import fi.foyt.fni.cloud.persistence.jpa.domainmodel.materials.Document_;
 import fi.foyt.fni.cloud.persistence.jpa.domainmodel.materials.Folder;
 import fi.foyt.fni.cloud.persistence.jpa.domainmodel.materials.MaterialPublicity;
 import fi.foyt.fni.cloud.persistence.jpa.domainmodel.users.User;
@@ -66,6 +67,15 @@ public class DocumentDAO extends GenericDAO<Document> {
     );
     
     return entityManager.createQuery(criteria).getResultList();
+  }
+
+  public Long lengthDataByCreator(User creator) {
+    // Criteria API does not support "length" operation for byte arrays
+    // so we use JPQL queries
+    EntityManager entityManager = getEntityManager();
+    Query query = entityManager.createQuery("select coalesce(sum(length(data)), 0) from Document where creator = :creator");
+    query.setParameter("creator", creator);
+    return (Long) query.getSingleResult();
   }
 
   public Document updateTitle(Document document, User modifier, String title) {
