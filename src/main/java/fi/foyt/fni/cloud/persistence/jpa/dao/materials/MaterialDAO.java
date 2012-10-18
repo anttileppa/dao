@@ -222,6 +222,20 @@ public class MaterialDAO extends GenericDAO<Material> {
     
     return entityManager.createQuery(criteria).getResultList();
   }
+
+  public Long countByCreator(User creator) {
+    EntityManager entityManager = getEntityManager();
+
+    CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
+    CriteriaQuery<Long> criteria = criteriaBuilder.createQuery(Long.class);
+    Root<Material> root = criteria.from(Material.class);
+    criteria.select(criteriaBuilder.count(root));
+    criteria.where(
+      criteriaBuilder.equal(root.get(Material_.creator), creator)
+    );
+    
+    return entityManager.createQuery(criteria).getSingleResult();
+  }
   
   public Material updatePublicity(Material material, MaterialPublicity publicity, User modifier) {
   	material.setPublicity(publicity);
