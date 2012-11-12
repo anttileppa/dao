@@ -219,7 +219,7 @@ public class RecipientMessageDAO extends GenericDAO<RecipientMessage> {
     return entityManager.createQuery(criteria).getResultList();
   }
 
-	public Long countByRecipientAndRead(User recipient, Boolean read) {
+	public Long countByRecipientAndReadAndRemoved(User recipient, Boolean read, Boolean removed) {
 		EntityManager entityManager = getEntityManager();
 
     CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
@@ -229,6 +229,7 @@ public class RecipientMessageDAO extends GenericDAO<RecipientMessage> {
     criteria.where(
     	criteriaBuilder.and(
         criteriaBuilder.equal(root.get(RecipientMessage_.recipient), recipient),
+        criteriaBuilder.equal(root.get(RecipientMessage_.removed), removed),
         criteriaBuilder.equal(root.get(RecipientMessage_.read), read)
       )
     );
