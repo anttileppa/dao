@@ -1,5 +1,7 @@
 package fi.foyt.fni.cloud.persistence.jpa.dao.common;
 
+import java.util.List;
+
 import javax.enterprise.context.RequestScoped;
 import javax.persistence.EntityManager;
 import javax.persistence.criteria.CriteriaBuilder;
@@ -49,6 +51,18 @@ public class LanguageDAO extends GenericDAO<Language> {
     criteria.where(criteriaBuilder.equal(root.get(Language_.ISO3), iso3));
 
     return getSingleResult(entityManager.createQuery(criteria));
+  }
+
+  public List<Language> listByLocalized(Boolean localized) {
+    EntityManager entityManager = getEntityManager();
+
+    CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
+    CriteriaQuery<Language> criteria = criteriaBuilder.createQuery(Language.class);
+    Root<Language> root = criteria.from(Language.class);
+    criteria.select(root);
+    criteria.where(criteriaBuilder.equal(root.get(Language_.localized), localized));
+
+    return entityManager.createQuery(criteria).getResultList();
   }
 
 }
