@@ -4,7 +4,7 @@
 
   <groupId>fi.foyt.fni</groupId>
   <artifactId>dao</artifactId>
-  <version>2.1.7-SNAPSHOT</version>
+  <version>2.1.7</version>
   <packaging>jar</packaging>
 
   <name>dao</name>
@@ -36,7 +36,7 @@
     <dependency>
       <groupId>fi.foyt.fni</groupId>
       <artifactId>domainmodel</artifactId>
-      <version>2.1.7-SNAPSHOT</version>
+      <version>2.1.7</version>
     </dependency>
   </dependencies>
   
